@@ -5,7 +5,7 @@ import numpy as np
 from data_generator import GaussianNoise
 
 epsilon = 1e-5
-sys.setrecursionlimit(10000)
+sys.setrecursionlimit(50000)
 
 def sequential_estimation(mu, sigma, existingAggregate):
     count, mean, M2 = existingAggregate
@@ -14,7 +14,7 @@ def sequential_estimation(mu, sigma, existingAggregate):
         return
     else:
         count += 1
-        print("---------------- {} iteration ----------------".format(count))
+        print("\n---------------- {} iteration ----------------".format(count))
 
         new_x = GaussianNoise.boxmuller(mu, sigma)
         print("[*] new data point: {}".format(new_x))
@@ -38,8 +38,8 @@ def sequential_estimation(mu, sigma, existingAggregate):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--mean', type=float, help='specify the mean for Gaussian Noise', default=0.0)
-    parser.add_argument('-v', '--variance', type=float, help='specify the variance for Gaussian Noise', default=1.0)
+    parser.add_argument('-sigma', '--sigma', type=float, help='specify the variance for Gaussian Noise', default=1.0)
     args = parser.parse_args()
 
     existingAggregate = (0, 0.0, 0.0)
-    sequential_estimation(mu=args.mean, sigma=args.variance, existingAggregate=existingAggregate)
+    sequential_estimation(mu=args.mean, sigma=args.sigma, existingAggregate=existingAggregate)

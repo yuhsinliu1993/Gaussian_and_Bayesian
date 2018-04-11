@@ -5,20 +5,16 @@ import matplotlib.pyplot as plt
 from data_generator import GaussianNoise
 
 
-def polynomial_basis_linear_model_data_generator(M, a, w, X):
+def polynomial_basis_linear_model_data_generator(X, W, mu, variance):
     """
-    t = y(x, w) + e, where e ~ N(0,a)
-    input:
-        M: the basis number
-        a: variance
-        w: parameters shape (M, 1)
-        X: N data points
-    return:
-        t: target
+    t = y(x, w) + e, where e ~ N(mu, variance)
     """
+    A = np.array([X**i for i in range(len(W))]) # shape = (M, N)
 
-    phi = np.array([X**i for i in range(M)]) # shape = (M, N)
-    return np.dot(np.transpose(w), phi)
+    Y = np.dot(np.transpose(W), A)  # (1, M) x (M, N)
+    e = np.array([GaussianNoise.boxmuller(mu, variance) for i in range(len(X))])
+
+    return Y, Y + e
 
 def plot_gaussian_distribution(mu, sigma, data_num=10000, plot=True):
     # Generate data
@@ -59,8 +55,8 @@ if __name__ == '__main__':
     W = np.array(args.weights.split(','), dtype=float)
     assert args.order == len(W)
 
-    X = np.linspace(-10.0, 10.0, args.num)
-    Y = polynomial_basis_linear_model_data_generator(args.order, args.variance, W, X)
+    X = np.linspace(-10, 10, args.num)
+    Y, T = polynomial_basis_linear_model_data_generator(X, W, 0, args.variance)
 
     # plot
     fig = plt.figure()
@@ -68,9 +64,6 @@ if __name__ == '__main__':
     # draw function
     ax1 = fig.add_subplot(111)
     ax1.plot(X, Y, color="red")
-
-    e = np.array([GaussianNoise.boxmuller(0, args.variance) for i in range(args.num)])
-    T = Y + e
 
     # draw data
     ax1.scatter(X, T, s=5)
